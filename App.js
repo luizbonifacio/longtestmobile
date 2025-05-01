@@ -6,6 +6,7 @@ import {
   ActivityIndicator,
   TouchableOpacity,
   StyleSheet,
+  Image,
 } from 'react-native';
 import axios from 'axios';
 
@@ -26,10 +27,6 @@ const App = () => {
     setLoading(true);
     try {
       console.log('Fetching data...');
-      console.log('Loading:', loading);
-      console.log('Has More:', hasMore);
-      console.log('Last Listing ID:', lastListingId);
-      console.log('Last Row Value:', lastRowValue);
       const response = await axios.post(API_URL, {
         categories: [],
         last_listing_id: lastListingId,
@@ -43,8 +40,8 @@ const App = () => {
         version_number: '2.2.6',
       });
 
-      console.log('API Response:', response.data);
-      const newItems = response.data.list || [];
+      console.log('Full API Response:', response.data);
+      const newItems = response.data.xchange || []; // Use 'xchange' instead of 'list'
       console.log('New Items:', newItems);
 
       setHasMore(newItems.length > 0);
@@ -67,7 +64,7 @@ const App = () => {
   }, []);
 
   useEffect(() => {
-    console.log('Data state updated:', data); // Debugging line
+    console.log('Data state updated:', data);
   }, [data]);
 
   const renderFooter = () => {
@@ -85,8 +82,18 @@ const App = () => {
     console.log('Rendering item:', item); // Debugging line
     return (
       <View style={styles.item}>
-        <Text style={styles.title}>{item.title || 'No Title'}</Text>
-        <Text>{item.description || 'No Description'}</Text>
+        <Image
+          source={{ uri: item.item_image }}
+          style={styles.image}
+          resizeMode="cover"
+        />
+        <View>
+          <Text style={styles.title}>{item.brand || 'No Brand'}</Text>
+          <Text>Model: {item.model || 'No Model'}</Text>
+          <Text>Category: {item.category || 'No Category'}</Text>
+          <Text>Price: {item.currency} {item.selling_price || 'N/A'}</Text>
+          <Text>Seller: {item.lister_name || 'Unknown'}</Text>
+        </View>
       </View>
     );
   };
@@ -112,6 +119,14 @@ const styles = StyleSheet.create({
     padding: 12,
     borderBottomWidth: 1,
     borderBottomColor: '#ccc',
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  image: {
+    width: 80,
+    height: 80,
+    marginRight: 10,
+    borderRadius: 5,
   },
   title: {
     fontWeight: 'bold',
