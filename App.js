@@ -5,9 +5,11 @@ import {
   FlatList,
   ActivityIndicator,
   TouchableOpacity,
-  StyleSheet,
   Image,
+  TextInput,
 } from 'react-native';
+import styles from './AppStyles';
+import Icon from 'react-native-vector-icons/Ionicons';
 import axios from 'axios';
 
 const API_URL = 'https://pk9blqxffi.execute-api.us-east-1.amazonaws.com/xdeal/Xchange';
@@ -40,9 +42,7 @@ const App = () => {
         version_number: '2.2.6',
       });
 
-      console.log('Full API Response:', response.data);
       const newItems = response.data.xchange || []; // Use 'xchange' instead of 'list'
-      console.log('New Items:', newItems);
 
       setHasMore(newItems.length > 0);
       setData(prev => [...prev, ...newItems]);
@@ -68,7 +68,7 @@ const App = () => {
   }, [data]);
 
   const renderFooter = () => {
-    if (loading) return <ActivityIndicator size="large" color="#0000ff" />;
+    if (loading) return <ActivityIndicator size="large" color="#0a7" />;
     if (!hasMore) return <Text style={styles.noMore}>No more items</Text>;
 
     return (
@@ -78,72 +78,70 @@ const App = () => {
     );
   };
 
-  const renderItem = ({ item }) => {
-    console.log('Rendering item:', item); // Debugging line
-    return (
-      <View style={styles.item}>
-        <Image
-          source={{ uri: item.item_image }}
-          style={styles.image}
-          resizeMode="cover"
-        />
-        <View>
-          <Text style={styles.title}>{item.brand || 'No Brand'}</Text>
-          <Text>Model: {item.model || 'No Model'}</Text>
-          <Text>Category: {item.category || 'No Category'}</Text>
-          <Text>Price: {item.currency} {item.selling_price || 'N/A'}</Text>
-          <Text>Seller: {item.lister_name || 'Unknown'}</Text>
+  const renderItem = ({ item }) => (
+    <View style={styles.card}>
+      <Image source={{ uri: item.item_image }} style={styles.cardImage} />
+      <View style={styles.cardContent}>
+        <Text style={styles.cardTitle}>{item.brand}</Text>
+        <Text style={styles.cardSubtitle}>{item.model}</Text>
+        <Text style={styles.cardCategory}>{item.category}</Text>
+        <Text style={styles.cardPrice}>{item.currency} {item.selling_price}</Text>
+        <View style={styles.listerContainer}>
+          <Image source={{ uri: item.lister_image }} style={styles.listerImage} />
+          <Text style={styles.listerName}>{item.lister_name}</Text>
         </View>
       </View>
-    );
-  };
+    </View>
+  );
+
 
   return (
-    <View style={{ flex: 1, padding: 10 }}>
-      {data.length === 0 ? (
-        <Text style={{ textAlign: 'center', marginTop: 20 }}>No items available</Text>
-      ) : (
-        <FlatList
-          data={data}
-          keyExtractor={(item, index) => item.listing_id?.toString() || `key-${index}`}
-          renderItem={renderItem}
-          ListFooterComponent={renderFooter}
+    <View style={{ flex: 1, backgroundColor: '#f5f5f5' }}>
+      {/* Header */}
+      <View style={styles.header}>
+        <Text style={styles.headerTitle}>Grab Store</Text>
+        <Icon name="cart-outline" size={24} color="#fff" />
+      </View>
+
+      {/* Search Bar */}
+      <View style={styles.searchContainer}>
+        <Icon name="search-outline" size={20} color="#999" style={styles.searchIcon} />
+        <TextInput
+          placeholder="Search items..."
+          placeholderTextColor="#999"
+          style={styles.searchInput}
         />
-      )}
+      </View>
+
+      {/* Item Grid */}
+      <FlatList
+        data={data}
+        renderItem={renderItem}
+        keyExtractor={item => item.listing_id}
+        numColumns={2}
+        contentContainerStyle={{ paddingBottom: 80 }}
+        ListFooterComponent={renderFooter}
+      />
+
+      <View style={styles.footer}>
+        <TouchableOpacity style={styles.footerItem}>
+          <Icon name="home-outline" size={24} color="#0a7" />
+          <Text style={styles.footerText}>Home</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.footerItem}>
+          <Icon name="heart-outline" size={24} color="#888" />
+          <Text style={styles.footerText}>Wishlist</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.footerItem}>
+          <Icon name="person-outline" size={24} color="#888" />
+          <Text style={styles.footerText}>Account</Text>
+        </TouchableOpacity>
+      </View>
     </View>
   );
 };
 
-const styles = StyleSheet.create({
-  item: {
-    padding: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: '#ccc',
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  image: {
-    width: 80,
-    height: 80,
-    marginRight: 10,
-    borderRadius: 5,
-  },
-  title: {
-    fontWeight: 'bold',
-  },
-  loadMore: {
-    padding: 15,
-    backgroundColor: '#eee',
-    alignItems: 'center',
-  },
-  loadMoreText: {
-    fontWeight: 'bold',
-  },
-  noMore: {
-    padding: 15,
-    textAlign: 'center',
-    color: 'gray',
-  },
-});
+
+
 
 export default App;
