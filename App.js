@@ -11,7 +11,7 @@ import axios from 'axios';
 
 const API_URL = 'https://pk9blqxffi.execute-api.us-east-1.amazonaws.com/xdeal/Xchange';
 const TOKEN =
-  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1laWRlbnRpZmllciI6IjYiLCJuYmYiOjE3NDU2MjYzNTksImV4cCI6MTc0ODIxODM1OSwiaXNzIjoiWHVyMzRQMSIsImF1ZCI6Ilh1cjQ0UFAifQ.qzc-LBSyxuBd7RqMtQFovUo093KtW3p7xHaYUPe0WJ8';
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1laWRlbnRpZmllciI6IjYiLCJuYmYiOjE3NDU2MjYzNTksImV4cCI6MTc0ODIxODM1OSwiaXNzIjoiWHVyMzRQMSIsImF1ZCI6Ilh1cjQ0UFAifQ.qzc-LBSyxuBd7RqMtQFovUo093KtW3p7xHaYUPe0WJ8";
 
 const App = () => {
   const [data, setData] = useState([]);
@@ -25,6 +25,11 @@ const App = () => {
 
     setLoading(true);
     try {
+      console.log('Fetching data...');
+      console.log('Loading:', loading);
+      console.log('Has More:', hasMore);
+      console.log('Last Listing ID:', lastListingId);
+      console.log('Last Row Value:', lastRowValue);
       const response = await axios.post(API_URL, {
         categories: [],
         last_listing_id: lastListingId,
@@ -38,7 +43,10 @@ const App = () => {
         version_number: '2.2.6',
       });
 
+      console.log('API Response:', response.data);
       const newItems = response.data.list || [];
+      console.log('New Items:', newItems);
+
       setHasMore(newItems.length > 0);
       setData(prev => [...prev, ...newItems]);
 
@@ -58,12 +66,9 @@ const App = () => {
     fetchData();
   }, []);
 
-  const renderItem = ({ item }) => (
-    <View style={styles.item}>
-      <Text style={styles.title}>{item.title || 'No Title'}</Text>
-      <Text>{item.description || 'No Description'}</Text>
-    </View>
-  );
+  useEffect(() => {
+    console.log('Data state updated:', data); // Debugging line
+  }, [data]);
 
   const renderFooter = () => {
     if (loading) return <ActivityIndicator size="large" color="#0000ff" />;
@@ -76,13 +81,29 @@ const App = () => {
     );
   };
 
+  const renderItem = ({ item }) => {
+    console.log('Rendering item:', item); // Debugging line
+    return (
+      <View style={styles.item}>
+        <Text style={styles.title}>{item.title || 'No Title'}</Text>
+        <Text>{item.description || 'No Description'}</Text>
+      </View>
+    );
+  };
+
   return (
-    <FlatList
-      data={data}
-      keyExtractor={(item, index) => item.listing_id?.toString() || index.toString()}
-      renderItem={renderItem}
-      ListFooterComponent={renderFooter}
-    />
+    <View style={{ flex: 1, padding: 10 }}>
+      {data.length === 0 ? (
+        <Text style={{ textAlign: 'center', marginTop: 20 }}>No items available</Text>
+      ) : (
+        <FlatList
+          data={data}
+          keyExtractor={(item, index) => item.listing_id?.toString() || `key-${index}`}
+          renderItem={renderItem}
+          ListFooterComponent={renderFooter}
+        />
+      )}
+    </View>
   );
 };
 
