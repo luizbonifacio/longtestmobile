@@ -44,7 +44,14 @@ const App = () => {
         version_number: '2.2.6',
       });
 
+<<<<<<< Updated upstream
       const newItems = response.data.xchange || [];
+=======
+      console.log('Full API Response:', response.data);
+      const newItems = response.data.xchange || []; 
+      console.log('New Items:', newItems);
+
+>>>>>>> Stashed changes
       setHasMore(newItems.length > 0);
       setData(prev => [...prev, ...newItems]);
       setFilteredData(prev => [...prev, ...newItems]); // Initialize filteredData with all data
