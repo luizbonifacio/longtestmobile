@@ -18,10 +18,12 @@ const TOKEN =
 
 const App = () => {
   const [data, setData] = useState([]);
+  const [filteredData, setFilteredData] = useState([]);
   const [lastListingId, setLastListingId] = useState('');
   const [lastRowValue, setLastRowValue] = useState('');
   const [loading, setLoading] = useState(false);
   const [hasMore, setHasMore] = useState(true);
+  const [searchQuery, setSearchQuery] = useState('');
 
   const fetchData = async () => {
     if (loading || !hasMore) return;
@@ -42,10 +44,10 @@ const App = () => {
         version_number: '2.2.6',
       });
 
-      const newItems = response.data.xchange || []; // Use 'xchange' instead of 'list'
-
+      const newItems = response.data.xchange || [];
       setHasMore(newItems.length > 0);
       setData(prev => [...prev, ...newItems]);
+      setFilteredData(prev => [...prev, ...newItems]); // Initialize filteredData with all data
 
       if (newItems.length > 0) {
         const lastItem = newItems[newItems.length - 1];
@@ -63,13 +65,24 @@ const App = () => {
     fetchData();
   }, []);
 
+  // Filter data based on search query
   useEffect(() => {
-    console.log('Data state updated:', data);
-  }, [data]);
+    if (searchQuery.trim() === '') {
+      setFilteredData(data);
+    } else {
+      const filtered = data.filter(item => 
+        item.brand.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        item.model.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        item.category.toLowerCase().includes(searchQuery.toLowerCase())
+      );
+      setFilteredData(filtered);
+    }
+  }, [searchQuery, data]);
 
   const renderFooter = () => {
     if (loading) return <ActivityIndicator size="large" color="#0a7" />;
     if (!hasMore) return <Text style={styles.noMore}>No more items</Text>;
+    if (searchQuery.trim() !== '') return null; // Don't show load more when searching
 
     return (
       <TouchableOpacity onPress={fetchData} style={styles.loadMore}>
@@ -94,7 +107,6 @@ const App = () => {
     </View>
   );
 
-
   return (
     <View style={{ flex: 1, backgroundColor: '#f5f5f5' }}>
       {/* Header */}
@@ -110,12 +122,14 @@ const App = () => {
           placeholder="Search items..."
           placeholderTextColor="#999"
           style={styles.searchInput}
+          value={searchQuery}
+          onChangeText={text => setSearchQuery(text)}
         />
       </View>
 
       {/* Item Grid */}
       <FlatList
-        data={data}
+        data={filteredData}
         renderItem={renderItem}
         keyExtractor={item => item.listing_id}
         numColumns={2}
@@ -140,8 +154,6 @@ const App = () => {
     </View>
   );
 };
-
-
 
 
 export default App;
