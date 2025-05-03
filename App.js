@@ -51,7 +51,7 @@ const App = () => {
 
       setHasMore(newItems.length > 0);
       setData(prev => [...prev, ...newItems]);
-      setFilteredData(prev => [...prev, ...newItems]); // Initialize filteredData with all data
+      setFilteredData(prev => [...prev, ...newItems]); 
 
       if (newItems.length > 0) {
         const lastItem = newItems[newItems.length - 1];
@@ -69,7 +69,7 @@ const App = () => {
     fetchData();
   }, []);
 
-  // Filter data based on search query
+
   useEffect(() => {
     if (searchQuery.trim() === '') {
       setFilteredData(data);
@@ -86,7 +86,7 @@ const App = () => {
   const renderFooter = () => {
     if (loading) return <ActivityIndicator size="large" color="#0a7" />;
     if (!hasMore) return <Text style={styles.noMore}>No more items</Text>;
-    if (searchQuery.trim() !== '') return null; // Don't show load more when searching
+    if (searchQuery.trim() !== '') return null; 
 
     return (
       <TouchableOpacity onPress={fetchData} style={styles.loadMore}>
@@ -113,13 +113,13 @@ const App = () => {
 
   return (
     <View style={{ flex: 1, backgroundColor: '#f5f5f5' }}>
-      {/* Header */}
+
       <View style={styles.header}>
         <Text style={styles.headerTitle}>Grab Store</Text>
         <Icon name="cart-outline" size={24} color="#fff" />
       </View>
 
-      {/* Search Bar */}
+   
       <View style={styles.searchContainer}>
         <Icon name="search-outline" size={20} color="#999" style={styles.searchIcon} />
         <TextInput
@@ -131,7 +131,7 @@ const App = () => {
         />
       </View>
 
-      {/* Item Grid */}
+      
       <FlatList
         data={filteredData}
         renderItem={renderItem}
