@@ -9,6 +9,7 @@ import {
   TextInput,
 } from 'react-native';
 import styles from '../AppStyles';
+import { useNavigation } from '@react-navigation/native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import axios from 'axios';
 
@@ -16,7 +17,7 @@ const API_URL = 'https://pk9blqxffi.execute-api.us-east-1.amazonaws.com/xdeal/Xc
 const TOKEN =
   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1laWRlbnRpZmllciI6IjEiLCJuYmYiOjE3NDYxOTI1MTQsImV4cCI6MTc0ODc4NDUxNCwiaXNzIjoiWHVyMzRQMSIsImF1ZCI6Ilh1cjQ0UFAifQ.QD-fcLXtznCfkTIYkbOQfc5fXfxYgw_mOziKWpUHddk"
 
-const App = () => {
+const Xchange = () => {
   const [data, setData] = useState([]);
   const [filteredData, setFilteredData] = useState([]);
   const [lastListingId, setLastListingId] = useState('');
@@ -24,6 +25,7 @@ const App = () => {
   const [loading, setLoading] = useState(false);
   const [hasMore, setHasMore] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
+  const navigation = useNavigation();
 
   const fetchData = async () => {
     if (loading || !hasMore) return;
@@ -96,7 +98,10 @@ const App = () => {
   };
 
   const renderItem = ({ item }) => (
-    <View style={styles.card}>
+    <TouchableOpacity
+      onPress={() => navigation.navigate('ItemDetails', { item })}
+      style={styles.card}
+    >
       <Image source={{ uri: item.item_image }} style={styles.cardImage} />
       <View style={styles.cardContent}>
         <Text style={styles.cardTitle}>{item.brand}</Text>
@@ -108,9 +113,9 @@ const App = () => {
           <Text style={styles.listerName}>{item.lister_name}</Text>
         </View>
       </View>
-    </View>
+    </TouchableOpacity>
   );
-
+  
   return (
     <View style={{ flex: 1, backgroundColor: '#f5f5f5' }}>
 
@@ -160,4 +165,4 @@ const App = () => {
 };
 
 
-export default App;
+export default Xchange;

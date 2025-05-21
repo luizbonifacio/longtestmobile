@@ -1,41 +1,32 @@
-// App.js
 import React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
-import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import Icon from 'react-native-vector-icons/Ionicons';
-
-// Import screens
+import { createStackNavigator } from '@react-navigation/stack';
 import Xchange from './screens/xchange';
-// Placeholder screens for future expansion
-const Wishlist = () => null;
-const Account = () => null;
+import ItemDetails from './screens/itemdetails';
+import LoginScreen from './screens/loginscreen';
 
-const Tab = createBottomTabNavigator();
+const Stack = createStackNavigator();
 
-const App = () => {
-  return (
-    <NavigationContainer>
-      <Tab.Navigator
-        screenOptions={({ route }) => ({
-          tabBarIcon: ({ color, size }) => {
-            let iconName;
-            if (route.name === 'Xchange') iconName = 'home-outline';
-            else if (route.name === 'Wishlist') iconName = 'heart-outline';
-            else if (route.name === 'Account') iconName = 'person-outline';
-
-            return <Icon name={iconName} size={size} color={color} />;
-          },
-          headerShown: false,
-          tabBarActiveTintColor: '#0a7',
-          tabBarInactiveTintColor: '#888',
-        })}
-      >
-        <Tab.Screen name="Xchange" component={Xchange} />
-        <Tab.Screen name="Wishlist" component={Wishlist} />
-        <Tab.Screen name="Account" component={Account} />
-      </Tab.Navigator>
-    </NavigationContainer>
-  );
-};
+const App = () => (
+  <NavigationContainer>
+    <Stack.Navigator initialRouteName="Login">
+      <Stack.Screen
+        name="Login"
+        component={LoginScreen}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="Xchange"
+        component={Xchange}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="ItemDetails"
+        component={ItemDetails}
+        options={{ title: 'Item Details' }}
+      />
+    </Stack.Navigator>
+  </NavigationContainer>
+);
 
 export default App;
