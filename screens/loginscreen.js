@@ -10,25 +10,28 @@ import {
   KeyboardAvoidingView,
   Platform,
   ScrollView,
+  Modal,
+  ActivityIndicator,
 } from 'react-native';
 import axios from 'axios';
 import Icon from 'react-native-vector-icons/MaterialIcons';
-import Logo from '../assets/New-Xure-Logo.png'; 
+import Logo from '../assets/New-Xure-Logo.png';
 
 const LoginScreen = ({ navigation }) => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
-
-
+  const [isLoading, setIsLoading] = useState(false);
   const [usernameTouched, setUsernameTouched] = useState(false);
   const [passwordTouched, setPasswordTouched] = useState(false);
 
   const handleLogin = async () => {
-    if (username === '' || password === '') {
+    if (!username || !password) {
       Alert.alert('Validation Error', 'Please enter both username and password.');
       return;
     }
+
+    setIsLoading(true);
 
     try {
       const response = await axios.post(
@@ -43,7 +46,7 @@ const LoginScreen = ({ navigation }) => {
 
       const userData = response.data.XpertData?.[0];
 
-      if (userData && userData.token) {
+      if (userData?.token) {
         Alert.alert('Login Successful', `Welcome, ${userData.firstname} ${userData.lastname}!`);
         navigation.navigate('Xchange', {
           token: userData.token,
@@ -55,14 +58,26 @@ const LoginScreen = ({ navigation }) => {
     } catch (error) {
       console.error('Login error:', error);
       Alert.alert('Login Error', 'Something went wrong. Please try again.');
+    } finally {
+      setIsLoading(false);
     }
   };
 
   return (
     <View style={styles.outerContainer}>
+      {/* Loading Modal */}
+      <Modal visible={isLoading} transparent animationType="fade">
+        <View style={styles.loadingContainer}>
+          <View style={styles.spinnerBox}>
+            <ActivityIndicator size="large" color="#800080" />
+            <Text style={styles.loadingText}>Signing in...</Text>
+          </View>
+        </View>
+      </Modal>
+
       <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'padding' : null}
         style={styles.flexOne}
+        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
         keyboardVerticalOffset={Platform.OS === 'ios' ? 60 : 0}
       >
         <ScrollView
@@ -80,6 +95,7 @@ const LoginScreen = ({ navigation }) => {
             onChangeText={setUsername}
             onFocus={() => setUsernameTouched(true)}
             onBlur={() => setUsernameTouched(true)}
+            placeholderTextColor="#888"
           />
           {usernameTouched && username === '' && (
             <Text style={styles.errorText}>Username is required</Text>
@@ -94,6 +110,7 @@ const LoginScreen = ({ navigation }) => {
               onChangeText={setPassword}
               onFocus={() => setPasswordTouched(true)}
               onBlur={() => setPasswordTouched(true)}
+              placeholderTextColor="#888"
             />
             <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
               <Icon
@@ -112,13 +129,12 @@ const LoginScreen = ({ navigation }) => {
           </TouchableOpacity>
 
           <View style={styles.forgotPasswordContainer}>
-            <TouchableOpacity style={styles.forgotPasswordContainer} onPress={() => {}}>
+            <TouchableOpacity onPress={() => {}}>
               <Text style={styles.forgotPasswordText}>Forgot Password?</Text>
             </TouchableOpacity>
           </View>
         </ScrollView>
       </KeyboardAvoidingView>
-
 
       <View style={styles.bottomContainer}>
         <Text style={styles.dont}>Don't have an account?</Text>
@@ -135,13 +151,13 @@ export default LoginScreen;
 const styles = StyleSheet.create({
   outerContainer: {
     flex: 1,
+    backgroundColor: '#f4f4f4',
   },
   flexOne: {
     flex: 1,
   },
   container: {
     flexGrow: 1,
-    backgroundColor: '#f4f4f4',
     justifyContent: 'center',
     alignItems: 'center',
     paddingHorizontal: 20,
@@ -158,12 +174,12 @@ const styles = StyleSheet.create({
     marginBottom: 30,
     textAlign: 'center',
     color: '#333',
-  },input: {
+  },
+  input: {
     width: '100%',
     height: 50,
     backgroundColor: 'transparent',
     paddingHorizontal: 15,
-    paddingVertical: 0,
     borderRadius: 8,
     marginBottom: 5,
     borderWidth: 1.5,
@@ -174,14 +190,13 @@ const styles = StyleSheet.create({
     width: '100%',
     height: 50,
     flexDirection: 'row',
-    backgroundColor: 'transparent',
     alignItems: 'center',
     paddingHorizontal: 15,
     borderRadius: 8,
     borderWidth: 1.5,
     borderColor: '#333',
+    marginTop: 10,
     marginBottom: 5,
-    marginTop: 10, 
   },
   passwordInput: {
     flex: 1,
@@ -215,11 +230,8 @@ const styles = StyleSheet.create({
   forgotPasswordText: {
     color: '#e6b570',
     fontWeight: 'bold',
-    textDecorationLine: 'none',
     fontSize: 16,
-    marginTop: -30,
   },
-
   bottomContainer: {
     position: 'absolute',
     bottom: 20,
@@ -235,7 +247,6 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   createAccountButton: {
-    backgroundColor: 'transparent',
     borderWidth: 1.5,
     borderColor: '#e6b570',
     borderRadius: 8,
@@ -247,6 +258,29 @@ const styles = StyleSheet.create({
   createAccountText: {
     color: '#e6b570',
     fontSize: 16,
+    fontWeight: 'bold',
+  },
+  loadingContainer: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.4)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  spinnerBox: {
+    backgroundColor: 'white',
+    padding: 20,
+    borderRadius: 12,
+    alignItems: 'center',
+    elevation: 4,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+  },
+  loadingText: {
+    marginTop: 10,
+    fontSize: 16,
+    color: '#333',
     fontWeight: 'bold',
   },
 });
