@@ -1,163 +1,41 @@
-import React, { useEffect, useState } from 'react';
-import {
-  View,
-  Text,
-  FlatList,
-  ActivityIndicator,
-  TouchableOpacity,
-  Image,
-  TextInput,
-} from 'react-native';
-import styles from './AppStyles';
+// App.js
+import React from 'react';
+import { NavigationContainer } from '@react-navigation/native';
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import Icon from 'react-native-vector-icons/Ionicons';
-import axios from 'axios';
 
-const API_URL = 'https://pk9blqxffi.execute-api.us-east-1.amazonaws.com/xdeal/Xchange';
-const TOKEN =
-  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1laWRlbnRpZmllciI6IjEiLCJuYmYiOjE3NDYxOTI1MTQsImV4cCI6MTc0ODc4NDUxNCwiaXNzIjoiWHVyMzRQMSIsImF1ZCI6Ilh1cjQ0UFAifQ.QD-fcLXtznCfkTIYkbOQfc5fXfxYgw_mOziKWpUHddk"
+// Import screens
+import Xchange from './screens/xchange';
+// Placeholder screens for future expansion
+const Wishlist = () => null;
+const Account = () => null;
+
+const Tab = createBottomTabNavigator();
 
 const App = () => {
-  const [data, setData] = useState([]);
-  const [filteredData, setFilteredData] = useState([]);
-  const [lastListingId, setLastListingId] = useState('');
-  const [lastRowValue, setLastRowValue] = useState('');
-  const [loading, setLoading] = useState(false);
-  const [hasMore, setHasMore] = useState(true);
-  const [searchQuery, setSearchQuery] = useState('');
-
-  const fetchData = async () => {
-    if (loading || !hasMore) return;
-
-    setLoading(true);
-    try {
-      console.log('Fetching data...');
-      const response = await axios.post(API_URL, {
-        categories: [],
-        last_listing_id: lastListingId,
-        last_row_value: lastRowValue,
-        max: '',
-        min: '',
-        search: '',
-        sort: '',
-        token: TOKEN,
-        user_type: 'Xpert',
-        version_number: '2.2.6',
-      });
-
-      console.log('Full API Response:', response.data);
-      const newItems = response.data.xchange || []; 
-      console.log('New Items:', newItems);
-
-
-      setHasMore(newItems.length > 0);
-      setData(prev => [...prev, ...newItems]);
-      setFilteredData(prev => [...prev, ...newItems]); 
-
-      if (newItems.length > 0) {
-        const lastItem = newItems[newItems.length - 1];
-        setLastListingId(lastItem.listing_id || '');
-        setLastRowValue(lastItem.row_value || '');
-      }
-    } catch (error) {
-      console.error('API fetch error:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchData();
-  }, []);
-
-
-  useEffect(() => {
-    if (searchQuery.trim() === '') {
-      setFilteredData(data);
-    } else {
-      const filtered = data.filter(item => 
-        item.brand.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        item.model.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        item.category.toLowerCase().includes(searchQuery.toLowerCase())
-      );
-      setFilteredData(filtered);
-    }
-  }, [searchQuery, data]);
-
-  const renderFooter = () => {
-    if (loading) return <ActivityIndicator size="large" color="#0a7" />;
-    if (!hasMore) return <Text style={styles.noMore}>No more items</Text>;
-    if (searchQuery.trim() !== '') return null; 
-
-    return (
-      <TouchableOpacity onPress={fetchData} style={styles.loadMore}>
-        <Text style={styles.loadMoreText}>Load More</Text>
-      </TouchableOpacity>
-    );
-  };
-
-  const renderItem = ({ item }) => (
-    <View style={styles.card}>
-      <Image source={{ uri: item.item_image }} style={styles.cardImage} />
-      <View style={styles.cardContent}>
-        <Text style={styles.cardTitle}>{item.brand}</Text>
-        <Text style={styles.cardSubtitle}>{item.model}</Text>
-        <Text style={styles.cardCategory}>{item.category}</Text>
-        <Text style={styles.cardPrice}>{item.currency} {item.selling_price}</Text>
-        <View style={styles.listerContainer}>
-          <Image source={{ uri: item.lister_image }} style={styles.listerImage} />
-          <Text style={styles.listerName}>{item.lister_name}</Text>
-        </View>
-      </View>
-    </View>
-  );
-
   return (
-    <View style={{ flex: 1, backgroundColor: '#f5f5f5' }}>
+    <NavigationContainer>
+      <Tab.Navigator
+        screenOptions={({ route }) => ({
+          tabBarIcon: ({ color, size }) => {
+            let iconName;
+            if (route.name === 'Xchange') iconName = 'home-outline';
+            else if (route.name === 'Wishlist') iconName = 'heart-outline';
+            else if (route.name === 'Account') iconName = 'person-outline';
 
-      <View style={styles.header}>
-        <Text style={styles.headerTitle}>Grab Store</Text>
-        <Icon name="cart-outline" size={24} color="#fff" />
-      </View>
-
-   
-      <View style={styles.searchContainer}>
-        <Icon name="search-outline" size={20} color="#999" style={styles.searchIcon} />
-        <TextInput
-          placeholder="Search items..."
-          placeholderTextColor="#999"
-          style={styles.searchInput}
-          value={searchQuery}
-          onChangeText={text => setSearchQuery(text)}
-        />
-      </View>
-
-      
-      <FlatList
-        data={filteredData}
-        renderItem={renderItem}
-        keyExtractor={item => item.listing_id}
-        numColumns={2}
-        contentContainerStyle={{ paddingBottom: 80 }}
-        ListFooterComponent={renderFooter}
-      />
-
-      <View style={styles.footer}>
-        <TouchableOpacity style={styles.footerItem}>
-          <Icon name="home-outline" size={24} color="#0a7" />
-          <Text style={styles.footerText}>Home</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.footerItem}>
-          <Icon name="heart-outline" size={24} color="#888" />
-          <Text style={styles.footerText}>Wishlist</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.footerItem}>
-          <Icon name="person-outline" size={24} color="#888" />
-          <Text style={styles.footerText}>Account</Text>
-        </TouchableOpacity>
-      </View>
-    </View>
+            return <Icon name={iconName} size={size} color={color} />;
+          },
+          headerShown: false,
+          tabBarActiveTintColor: '#0a7',
+          tabBarInactiveTintColor: '#888',
+        })}
+      >
+        <Tab.Screen name="Xchange" component={Xchange} />
+        <Tab.Screen name="Wishlist" component={Wishlist} />
+        <Tab.Screen name="Account" component={Account} />
+      </Tab.Navigator>
+    </NavigationContainer>
   );
 };
-
 
 export default App;
