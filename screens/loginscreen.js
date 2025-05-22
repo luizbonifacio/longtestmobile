@@ -70,7 +70,7 @@ const LoginScreen = ({ navigation }) => {
         <View style={styles.loadingContainer}>
           <View style={styles.spinnerBox}>
             <ActivityIndicator size="large" color="#800080" />
-            <Text style={styles.loadingText}>Signing in...</Text>
+            <Text style={styles.loadingText}>Logging in...</Text>
           </View>
         </View>
       </Modal>

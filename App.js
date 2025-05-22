@@ -23,7 +23,14 @@ const App = () => (
       <Stack.Screen
         name="ItemDetails"
         component={ItemDetails}
-        options={{ title: 'Item Details' }}
+        options={{
+          title: 'Item Details',
+          headerTitleAlign: 'center',
+          headerTitleStyle: {
+            fontWeight: 'bold', // <-- this makes the title bold
+            fontSize: 18,
+          },
+        }}
       />
     </Stack.Navigator>
   </NavigationContainer>
