@@ -128,6 +128,13 @@ const styles = StyleSheet.create({
       textAlign: 'center',
       color: 'gray',
     },
+
+    filterButton: {
+      marginLeft: 8,
+      padding: 6,
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
   });
 
 export default styles;
