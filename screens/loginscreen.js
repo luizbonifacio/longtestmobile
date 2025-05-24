@@ -12,10 +12,13 @@ import {
   ScrollView,
   Modal,
   ActivityIndicator,
+  ImageBackground
 } from 'react-native';
 import axios from 'axios';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import Logo from '../assets/New-Xure-Logo.png';
+import Loader from '../assets/X_Logo_Loader.gif';
+import FastImage from 'react-native-fast-image';
 
 const LoginScreen = ({ navigation }) => {
   const [username, setUsername] = useState('');
@@ -43,6 +46,7 @@ const LoginScreen = ({ navigation }) => {
           app_name: 'xtore',
         }
       );
+      
 
       const userData = response.data.XpertData?.[0];
 
@@ -61,19 +65,26 @@ const LoginScreen = ({ navigation }) => {
     } finally {
       setIsLoading(false);
     }
+    
   };
+
 
   return (
     <View style={styles.outerContainer}>
       {/* Loading Modal */}
-      <Modal visible={isLoading} transparent animationType="fade">
-        <View style={styles.loadingContainer}>
-          <View style={styles.spinnerBox}>
-            <ActivityIndicator size="large" color="#800080" />
-            <Text style={styles.loadingText}>Logging in...</Text>
-          </View>
-        </View>
-      </Modal>
+     <Modal visible={isLoading} transparent animationType="fade">
+      <View style={styles.overlay} > 
+      <View style={styles.centeredGifContainer}> 
+  <FastImage
+    source={require('../assets/X_Logo_Loader.gif')} 
+    style={styles.gif}
+    resizeMode={FastImage.resizeMode.contain}
+  />
+  </View>
+
+  </View>
+</Modal>
+
 
       <KeyboardAvoidingView
         style={styles.flexOne}
@@ -143,6 +154,8 @@ const LoginScreen = ({ navigation }) => {
         </TouchableOpacity>
       </View>
     </View>
+
+    
   );
 };
 
@@ -283,4 +296,32 @@ const styles = StyleSheet.create({
     color: '#333',
     fontWeight: 'bold',
   },
+  gif: {
+    width: 100,
+    height: 100,
+  
+ justifyContent: 'center',
+    alignItems: 'center',
+  },
+    background: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    width: 'auto',
+    height:'auto',
+  },
+   overlay: {
+    ...StyleSheet.absoluteFillObject, // Covers the entire screen
+    backgroundColor: 'rgba(0, 0, 0, 0.5)', // Tint effect
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+centeredGifContainer: {
+    width: 200,
+    height: 200,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+
+
 });

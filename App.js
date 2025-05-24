@@ -20,6 +20,8 @@ const App = () => (
         component={Xchange}
         options={{ headerShown: false }}
       />
+    
+
       <Stack.Screen
         name="ItemDetails"
         component={ItemDetails}
